@@ -2,7 +2,7 @@
 <addon id="plugin.video.watchcartoononline" name="Watch Cartoon Online" version="1.0.22" provider-name="spoyser">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
-    <import addon="script.module.pydevd" version="4.4.0"/>
+    <!--import addon="script.module.pydevd" version="4.4.0"/-->
     <import addon="script.module.parsedom" version="0.9.1"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
