@@ -23,6 +23,7 @@ import urllib2
 import random
 import re
 import os
+import net
 
 import xbmc
 import xbmcaddon
@@ -56,6 +57,7 @@ HOST          = 400
 DOWNLOAD      = 500
 MARKWATCHED   = 600
 MARKUNWATCHED = 601
+SEARCH   = 700
 
 AUTOPLAY = ADDON.getSetting('AUTOPLAY') == 'true'
 
@@ -106,8 +108,28 @@ def Main():
             break
         if name != 'Home':
             AddSection(name, '', url)
+    
+    AddDir('Search', SEARCH, '', ICON, isFolder=True)
 
+def Search():
+    searchString = xbmcgui.Dialog().input('Search WatchCartoonOnline', type=xbmcgui.INPUT_ALPHANUM)
+    netApi = net.Net()
+    netApi.set_user_agent(utils.getUserAgent())
+    
+    url = 'https://www.watchcartoononline.io/search'
+    data = { 'catara': searchString, 'konuara': 'series' }
 
+    html = netApi.http_POST(url, data).content
+    hits = common.parseDOM(html, "div", attrs = { "class": "iccerceve" })
+    
+    for hit in hits:
+        hit = hit.split('</div>', 1)[-1]
+        hitUrl = common.parseDOM(hit, 'a', ret='href')[0].encode("utf-8")
+        hitTitle = common.parseDOM(hit, 'a', ret='title')[0].encode("utf-8")
+        hitImage = common.parseDOM(hit, 'img', ret='src')[0].encode("utf-8")
+        
+        AddDir(hitTitle, SERIES, url=hitUrl, image=hitImage, isFolder=True)
+    
 def DoSection(url):
     mode = SERIES
     if url == 'http://www.watchcartoononline.com/movie-list':
@@ -123,15 +145,11 @@ def DoSection(url):
   
     names = []
 
-#     match = re.compile('<li>(<a.+?</a>)</li>').findall(html)
     match = re.compile('<li><a href="(.+?)" title="(.+?)">(.+?)</a></li>').findall(html)
 
     sorted = []
 
-#     for link in match:
-#         url = common.parseDOM(link, 'a', ret='href')[0]
-#         name = common.parseDOM(link, 'a')[0]
-    for url, title, name in match:
+    for url, name in match:
         if '#' not in url:
             if name not in names:
                 names.append(name)
@@ -411,7 +429,6 @@ except: pass
 if mode == SECTION:
     DoSection(url)
 
-
 elif mode == SERIES:    
     html = utils.getHTML(url)
 
@@ -424,14 +441,12 @@ elif mode == SERIES:
     try:    xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
     except: pass
 
-
 elif mode == EPISODE:
     try:
         PlayVideo(url, (not AUTOPLAY))
     except Exception, e:
         print str(e)
         raise
-
 
 elif mode == DOWNLOAD:
     try:
@@ -440,10 +455,8 @@ elif mode == DOWNLOAD:
         print str(e)
         raise
 
-
 elif mode == HOST:
     selectHost(url)
-
 
 elif (mode == MARKWATCHED) or (mode == MARKUNWATCHED):
     metaData = {}
@@ -451,6 +464,8 @@ elif (mode == MARKWATCHED) or (mode == MARKUNWATCHED):
     meta.SetWatchedStatus(metaData, mode == MARKWATCHED)
     xbmc.executebuiltin('XBMC.Container.Refresh')
 
+elif mode == SEARCH:
+    Search()
 
 else:
     Main()
