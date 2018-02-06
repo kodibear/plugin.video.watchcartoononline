@@ -4,3 +4,6 @@ Spoyser, if you want me to take this repository down, just mail me.
 
 I'm only doing this for educational purposes (learning addon development for Kodi) and hold no responsibility 
 for anyone who decides to use it for whatever purpose.
+
+This version of plugin.video.watchcartoononline requires the addon script.module.parsedom
+It might be automatically resolved for you, but if it is not, you have to install it by hand from http://mirrors.kodi.tv/addons
