@@ -149,7 +149,7 @@ def DoSection(url):
 
     sorted = []
 
-    for url, name in match:
+    for url, title, name in match:
         if '#' not in url:
             if name not in names:
                 names.append(name)

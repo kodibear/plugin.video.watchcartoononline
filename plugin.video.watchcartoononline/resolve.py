@@ -21,9 +21,11 @@
 import re
 import os
 import sys
+import urllib2
 
 import wco_utils as utils
-
+import CommonFunctions
+common = CommonFunctions
 
 HOME = utils.ADDON.getAddonInfo('path')
 
@@ -40,17 +42,17 @@ def ResolveURL(url):
 
     ImportModules()
 
-
-    html = utils.getHTML(url)
-    html = html.replace('"Click Here!!"</a></div>', '')
+    response = urllib2.urlopen(url)
+    html = response.read()
+    #html = utils.getHTML(url)
+    #html = html.replace('"Click Here!!"</a></div>', '')
 
     url = None
     msg = None
 
     resolved = []
 
-    match = re.compile('<div class=\'postTabs_divs(.+?)</div>').findall(html)  
-
+    match = re.compile('<div class=\'postTabs_divs.+?>(.+?)</div>', re.DOTALL).findall(html)
     try:
         for item in match:   
             for module in MODULES:                        

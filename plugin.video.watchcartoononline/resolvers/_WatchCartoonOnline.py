@@ -21,15 +21,24 @@
 import re
 import urllib
 import net
+import base64
 
 import wco_utils as utils
 
+def decodeChar(char, charOffset):
+    return chr(int(re.sub(r'\D', '', base64.b64decode(char))) - charOffset)
 
 def Resolve(html):
     try:    
         results = []
 
-        urls = re.compile('<iframe id.+?src="(.+?)".+?</iframe>').findall(html)
+        # get around the new URL encoding mechanism
+        charOffset = re.search('String.fromCharCode.+? - ([\d]+?)\);', html).group(1)
+        encodedString = re.search('<script>.+?var .+? = \[(.+?)\]', html).group(1)
+        encodedChars = re.compile('\"(.+?=)\"').findall(encodedString)
+        iframe = ''.join([ decodeChar(x, int(charOffset)) for x in encodedChars ])
+        
+        urls = re.compile('<iframe id.+?src="(.+?)".+?</iframe>').findall(iframe)
 
         for url in urls:
             if 'cizgifilmlerizle' in url:
@@ -56,13 +65,11 @@ def Resolve(html):
 def DoResolve(url, results):
     try:        
         theNet = net.Net()
-
-        data = {'fuck_you' : '', 'confirm' : 'Click+Here+to+Watch+Free%21%21'}
-        url  = url.replace(' ', '%20')
+        url  = utils.URL + url.replace(' ', '%20')[1:]
 
         theNet.set_user_agent(utils.getUserAgent())
 
-        html  = theNet.http_POST(url, data).content.replace('\n', '').replace('\t', '')
+        html  = theNet.http_GET(url).content.replace('\n', '').replace('\t', '')
         sources = re.compile('{(.+?)}').findall(re.compile('sources:\s*(\[.*?\])').findall(html, re.DOTALL)[0])
         
         for source in sources:
