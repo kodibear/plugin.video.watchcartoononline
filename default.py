@@ -145,7 +145,7 @@ def DoSection(url):
   
     names = []
 
-    match = re.compile('<li><a href="(.+?)" title="(.+?)">(.+?)</a></li>').findall(html)
+    match = re.compile('<li><a href="(.+?)" title="(.+?)">.+?</a></li>').findall(html)
 
     sorted = []
 
@@ -303,9 +303,9 @@ def PlayVideo(_url, select):
         pl = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
         pl.clear()
         pl.add(url, liz)
-        #xbmc.Player().play(pl)
-
-        player = XBMCPlayer(xbmc.PLAYER_CORE_DVDPLAYER)
+#         player = xbmc.Player()
+        player = XBMCPlayer()
+#         player = XBMCPlayer(xbmc.PLAYER_CORE_DVDPLAYER)
         player.SetMetaData(metaData)
         player.play(pl)
         while player.is_active:
