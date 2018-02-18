@@ -145,7 +145,7 @@ def DoSection(url):
   
     names = []
 
-    match = re.compile('<li><a href="(.+?)" title="(.+?)">.+?</a></li>').findall(html)
+    match = re.compile('<li><a href="(.+?)" title="(.+?)">(.+?)</a></li>', re.DOTALL).findall(html)
 
     sorted = []
 
